@@ -8,15 +8,29 @@ from products.serializers import ProductSerializer
 # Create your views here.
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def index(request):
     # DRF API VIEW
-    instance = Product.objects.all().order_by("?").first()
     data = {}
-    if instance:
-        # data = model_to_dict(model_data, fields=['id', 'title'])
-        data = ProductSerializer(instance).data
-    return Response(data)
+    serializer = ProductSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        # creating an instance from the serializer, has something to do with database
+        instance = serializer.save()
+        print(serializer.data)
+        # data = serializer.data
+        print(instance)
+        return Response(serializer.data)
+    return Response({"Error": "Not good"}, status=400)
+
+# @api_view(["GET"])
+# def index(request):
+#     # DRF API VIEW
+#     instance = Product.objects.all().order_by("?").first()
+#     data = {}
+#     if instance:
+#         # data = model_to_dict(model_data, fields=['id', 'title'])
+#         data = ProductSerializer(instance).data
+#     return Response(data)
     # request -> httpreq
     # request.body
     # body = request.body  # byte string of JSON data
