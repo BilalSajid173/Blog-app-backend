@@ -9,7 +9,7 @@ from products.serializers import ProductSerializer
 
 
 @api_view(["POST"])
-def index(request):
+def addProduct(request):
     # DRF API VIEW
     data = {}
     serializer = ProductSerializer(data=request.data)
@@ -22,15 +22,16 @@ def index(request):
         return Response(serializer.data)
     return Response({"Error": "Not good"}, status=400)
 
-# @api_view(["GET"])
-# def index(request):
-#     # DRF API VIEW
-#     instance = Product.objects.all().order_by("?").first()
-#     data = {}
-#     if instance:
-#         # data = model_to_dict(model_data, fields=['id', 'title'])
-#         data = ProductSerializer(instance).data
-#     return Response(data)
+
+@api_view(["GET"])
+def getAllProducts(request):
+    # DRF API VIEW
+    instance = Product.objects.all().order_by("?")
+    data = {}
+    if instance:
+        # data = model_to_dict(model_data, fields=['id', 'title'])
+        data = ProductSerializer(instance, many=True).data
+    return Response(data)
     # request -> httpreq
     # request.body
     # body = request.body  # byte string of JSON data
