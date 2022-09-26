@@ -1,5 +1,6 @@
 import json
 from django.http import JsonResponse
+from django.forms.models import model_to_dict
 from products.models import Product
 # Create your views here.
 
@@ -24,12 +25,15 @@ def index(request):
     model_data = Product.objects.all().order_by("?").first()
     data = {}
     if model_data:
-        data['id'] = model_data.id
-        data['title'] = model_data.title
-        data['content'] = model_data.content
-        data['price'] = model_data.price
+        # data['id'] = model_data.id
+        # data['title'] = model_data.title
+        # data['content'] = model_data.content
+        # data['price'] = model_data.price
+        # another way to do all of the above
+        data = model_to_dict(model_data, fields=['id', 'title'])
         # process of serialization
         # model instance (model_data)
         # turn it into a python dict
         # return json to client
+    # jsonresponse accepts a dictionary as an argument
     return JsonResponse(data)
