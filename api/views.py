@@ -1,11 +1,20 @@
 import json
-from django.http import JsonResponse
+#from django.http import JsonResponse
 from django.forms.models import model_to_dict
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from products.models import Product
 # Create your views here.
 
 
+@api_view(["GET"])
 def index(request):
+    # DRF API VIEW
+    model_data = Product.objects.all().order_by("?").first()
+    data = {}
+    if model_data:
+        data = model_to_dict(model_data, fields=['id', 'title'])
+    return Response(data)
     # request -> httpreq
     # request.body
     # body = request.body  # byte string of JSON data
@@ -22,18 +31,18 @@ def index(request):
     # # handling query params
     # print(request.GET)  # gets query params
     # data['params'] = dict(request.GET)
-    model_data = Product.objects.all().order_by("?").first()
-    data = {}
-    if model_data:
-        # data['id'] = model_data.id
-        # data['title'] = model_data.title
-        # data['content'] = model_data.content
-        # data['price'] = model_data.price
-        # another way to do all of the above
-        data = model_to_dict(model_data, fields=['id', 'title'])
-        # process of serialization
-        # model instance (model_data)
-        # turn it into a python dict
-        # return json to client
+    # model_data = Product.objects.all().order_by("?").first()
+    # data = {}
+    # if model_data:
+    #     data = model_to_dict(model_data, fields=['id', 'title'])
+    # process of serialization
+    # model instance (model_data)
+    # turn it into a python dict
+    # return json to client
     # jsonresponse accepts a dictionary as an argument
-    return JsonResponse(data)
+    # data['id'] = model_data.id
+    # data['title'] = model_data.title
+    # data['content'] = model_data.content
+    # data['price'] = model_data.price
+    # another way to do all of the above
+    # return Response(data)
