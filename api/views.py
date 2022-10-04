@@ -1,6 +1,6 @@
 #import json
-#from django.http import JsonResponse
-from django.forms.models import model_to_dict
+# from django.http import JsonResponse --> intially used
+# from django.forms.models import model_to_dict
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from products.models import Product
@@ -32,12 +32,14 @@ def getAllProducts(request):
         # data = model_to_dict(model_data, fields=['id', 'title'])
         data = ProductSerializer(instance, many=True).data
     return Response(data)
+
+    # Starting things(not useful with drf)
     # request -> httpreq
-    # request.body
+    # request.body --> data from the frontend coming in.
     # body = request.body  # byte string of JSON data
     # data = {}
     # try:
-    #     data = json.loads(body)  # string of json data -> dictionary
+    #     data = json.loads(body)  # string of json data to a dictionary
     # except:
     #     pass
     # print(data)
@@ -48,18 +50,20 @@ def getAllProducts(request):
     # # handling query params
     # print(request.GET)  # gets query params
     # data['params'] = dict(request.GET)
+
+    # Django model instance as api response(working with models without drf)
     # model_data = Product.objects.all().order_by("?").first()
     # data = {}
     # if model_data:
     #     data = model_to_dict(model_data, fields=['id', 'title'])
     # process of serialization
-    # model instance (model_data)
-    # turn it into a python dict
+    # we basically have a model instance (model_data)
+    # then we turn it into a python dict and
     # return json to client
     # jsonresponse accepts a dictionary as an argument
+    # without using model_to_dict, we can also do it like this
     # data['id'] = model_data.id
     # data['title'] = model_data.title
     # data['content'] = model_data.content
     # data['price'] = model_data.price
-    # another way to do all of the above
-    # return Response(data)
+    # return JsonResponse(data)
