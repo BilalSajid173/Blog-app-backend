@@ -13,8 +13,10 @@ def addProduct(request):
     # DRF API VIEW
     data = {}
     serializer = ProductSerializer(data=request.data)
+    # raise exception will catch an invalid error and throw it.
     if serializer.is_valid(raise_exception=True):
         # creating an instance from the serializer, has something to do with database
+        # if we save the serializer we do not need the try catch block in the serializer for get_my_discount
         instance = serializer.save()
         print(serializer.data)
         # data = serializer.data
