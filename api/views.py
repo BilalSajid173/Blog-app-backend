@@ -29,7 +29,6 @@ def getAllProducts(request):
     instance = Product.objects.all().order_by("?")
     data = {}
     if instance:
-        # data = model_to_dict(model_data, fields=['id', 'title'])
         data = ProductSerializer(instance, many=True).data
     return Response(data)
 
