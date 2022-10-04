@@ -55,7 +55,7 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
-    
+
     def perform_destroy(self, instance):
         return super().perform_destroy(instance)
 
@@ -67,9 +67,12 @@ product_delete_view = ProductDestroyAPIView.as_view()
 #     serializer_class = ProductSerializer
 # lookup_field = "pk"
 
+# Skipped Product mixins part, look at it later
 
 # function based view for create, list and detail views
 # to test these, replace the functon in url with views.product_alt_view
+
+
 @api_view(["GET", "POST"])
 def product_alt_view(request, pk=None):
     method = request.method
