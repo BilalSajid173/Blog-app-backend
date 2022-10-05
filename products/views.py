@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions, authentication
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -21,6 +21,10 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    authentication_classes = [authentication.SessionAuthentication]
+    # parser_classes = [permissions.IsAuthenticated] -->with this the user can do anything just by being authenticated
+    # with the django model permissions the user can only do what is defined in the admin panel for the user
+    permission_classes = [permissions.DjangoModelPermissions]
 
     # we can use this function on Createapiview to add additional data to the product
     def perform_create(self, serializer):
