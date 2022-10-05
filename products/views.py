@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Product
 from .serializers import ProductSerializer
+from .permissions import IsStaffEditorPermission
 
 # Create your views here.
 
@@ -24,7 +25,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     authentication_classes = [authentication.SessionAuthentication]
     # parser_classes = [permissions.IsAuthenticated] -->with this the user can do anything just by being authenticated
     # with the django model permissions the user can only do what is defined in the admin panel for the user
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     # we can use this function on Createapiview to add additional data to the product
     def perform_create(self, serializer):
