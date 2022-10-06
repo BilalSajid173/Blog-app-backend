@@ -6,7 +6,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, address, education, password=None, password2=None):
+    def create_user(self, email, name, password=None):
         """
         Creates and saves a User with the given email, and password.
         """
@@ -16,15 +16,13 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             name=name,
-            address=address,
-            education=education,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, education, address, password=None):
+    def create_superuser(self, email, name, password=None):
         """
         Creates and saves a superuser with the given email, date of
         birth and password.
@@ -32,8 +30,6 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             email,
             name=name,
-            address=address,
-            education=education,
             password=password,
         )
         user.is_admin = True
@@ -49,8 +45,8 @@ class User(AbstractBaseUser):
     )
     # date_of_birth = models.DateField()
     name = models.CharField(max_length=200)
-    address = models.CharField(max_length=250)
-    education = models.CharField(max_length=200)
+    address = models.CharField(max_length=250, null=True)
+    education = models.CharField(max_length=200, null=True)
     about = models.CharField(max_length=500)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -59,7 +55,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'address', 'education']
+    REQUIRED_FIELDS = ['name']
 
     def __str__(self):
         return self.email
