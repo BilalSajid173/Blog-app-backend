@@ -1,6 +1,4 @@
-from django.forms import ValidationError
-from django.http import Http404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -56,8 +54,8 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
         # print(request.user)
         try:
             queryset = Product.objects.get(pk=kwargs['pk']).user
-        except:
-            raise Http404
+        except ObjectDoesNotExist:
+            return Response({"msg": "No post with this id"}, status=status.HTTP_404_NOT_FOUND)
         # print(queryset)
         # serializer = self.get_serializer(data=request.data)
         if request.user != queryset:
@@ -86,8 +84,8 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
         print(request.user)
         try:
             queryset = Product.objects.get(pk=kwargs['pk']).user
-        except:
-            raise Http404
+        except ObjectDoesNotExist:
+            return Response({"msg": "No post with this id"}, status=status.HTTP_404_NOT_FOUND)
         print(queryset)
         # serializer = self.get_serializer(data=request.data)
         if request.user != queryset:

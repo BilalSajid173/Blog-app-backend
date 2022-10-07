@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from account.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
+from products.models import Product
+from products.serializers import ProductSerializer
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -40,3 +42,29 @@ class LoginSerializer(serializers.ModelSerializer):
         return str(token.access_token)
     # def get__id(self, obj):
     #     return obj.id
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField(read_only=True)
+    password = serializers.CharField(
+        max_length=128,
+        write_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def get_products(self, obj):
+        products = obj.product_set.all()
+        serializer = ProductSerializer(products, many=True)
+        return serializer.data
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
