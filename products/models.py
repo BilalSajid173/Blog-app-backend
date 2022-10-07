@@ -1,16 +1,18 @@
+from email.policy import default
 from django.db import models
-
+from account.models import User
 # Create your models here.
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=120)
-    content = models.TextField(blank=True, null=True)
-    price = models.DecimalField(max_digits=15, decimal_places=2, default=99.99)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    title = models.CharField(max_length=100)
+    content = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    imageId = models.CharField(max_length=200, null=True)
+    category = models.CharField(max_length=200, null=True, blank=True)
+    commentCount = models.IntegerField(null=True, default=0)
+    likesCount = models.IntegerField(null=True, default=0)
 
-    @property
-    def sale_price(self):
-        return "%.2f" % (float(self.price) * 0.8)
-
-    def get_discount(self):
-        return '123'
+    def __str__(self):
+        return self.title

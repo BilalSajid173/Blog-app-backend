@@ -1,11 +1,14 @@
-from rest_framework import generics, permissions, authentication
+from django.forms import ValidationError
+from django.http import Http404
+from rest_framework import generics, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Product
 from .serializers import ProductSerializer
-from .permissions import IsStaffEditorPermission
+# from .permissions import IsStaffEditorPermission
 
 # Create your views here.
 
@@ -19,27 +22,27 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 # product_detail_view = ProductDetailAPIView.as_view()
 
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication]
+    # authentication_classes = [authentication.SessionAuthentication]
     # parser_classes = [permissions.IsAuthenticated] -->with this the user can do anything just by being authenticated
     # with the django model permissions the user can only do what is defined in the admin panel for the user
-    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
     # we can use this function on Createapiview to add additional data to the product
     def perform_create(self, serializer):
-        # serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user)
         # print(serializer) for whole serializer
         # playing around with it
         print(serializer.validated_data)  # only for data
-        content = serializer.validated_data.get('content') or None
-        if content is None:
-            content = serializer.validated_data.get('title')
-        serializer.save(content=content)
+        # content = serializer.validated_data.get('content') or None
+        # if content is None:
+        #     content = serializer.validated_data.get('title')
+        # serializer.save(content=content)
 
 
-product_list_create_view = ProductListCreateAPIView.as_view()
+product_create_view = ProductCreateAPIView.as_view()
 
 
 class ProductUpdateAPIView(generics.UpdateAPIView):
@@ -47,10 +50,26 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
     serializer_class = ProductSerializer
     lookup_field = 'pk'
 
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        if not instance.content:
-            instance.content = instance.title
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        # print(request.user)
+        try:
+            queryset = Product.objects.get(pk=kwargs['pk']).user
+        except:
+            raise Http404
+        # print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"})
+        return self.update(request, *args, **kwargs)
+        # if serializer.is_valid(raise_exception=True):
+        # serializer.save()
+        # return Response({"msg": "haha"})
+        # self.perform_update(serializer)
+        # print(self.kwargs['pk'])
+        # if not instance.content:
+        #     instance.content = instance.title
 
 
 product_update_view = ProductUpdateAPIView.as_view()
@@ -61,16 +80,34 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
     serializer_class = ProductSerializer
     lookup_field = 'pk'
 
-    def perform_destroy(self, instance):
-        return super().perform_destroy(instance)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        print(request.user)
+        try:
+            queryset = Product.objects.get(pk=kwargs['pk']).user
+        except:
+            raise Http404
+        print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"})
+        else:
+            self.destroy(request, *args, **kwargs)
+            return Response({"msg": "Success"})
 
 
 product_delete_view = ProductDestroyAPIView.as_view()
-# class ProductListAPIView(generics.ListAPIView):
-#     # not gonna use this method because we can just use the productlistcreateapiview
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-# lookup_field = "pk"
+
+
+class ProductListAPIView(generics.ListAPIView):
+    # not gonna use this method because we can just use the productlistcreateapiview
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    # lookup_field = "pk"
+
+
+product_list_view = ProductListAPIView.as_view()
 
 # Skipped Product mixins part, look at it later
 
