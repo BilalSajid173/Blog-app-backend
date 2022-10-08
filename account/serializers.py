@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from account.models import User
+from account.models import User, UserFollowing
 from rest_framework_simplejwt.tokens import RefreshToken
 from products.models import Product
 from products.serializers import ProductSerializer
@@ -50,6 +50,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         max_length=128,
         write_only=True
     )
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -68,3 +70,30 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+    def get_following(self, obj):
+        return FollowingSerializer(obj.following.all(), many=True).data
+
+    def get_followers(self, obj):
+        return FollowersSerializer(obj.followers.all(), many=True).data
+
+
+class FollowingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "following_user_id", "created")
+
+
+class FollowersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "user_id", "created")
+
+
+class UserFollowingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "following_user_id", "user_id", "created")

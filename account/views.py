@@ -3,6 +3,7 @@ from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 # from rest_framework.decorators import api_view, permission_classes
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 
 from django.contrib.auth import authenticate, login
 # from django.contrib.auth.decorators import login_required
@@ -10,8 +11,8 @@ from django.contrib.auth import authenticate, login
 # from .utils import get_tokens_for_user
 # from .serializers import RegistrationSerializer, PasswordChangeSerializer
 
-from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer
-from .models import User
+from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer
+from .models import User, UserFollowing
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -100,3 +101,56 @@ class UserUpdateAPIView(generics.UpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserFollowingView(generics.CreateAPIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserFollowingSerializer
+    queryset = UserFollowing.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        print(request.user)
+        print(request.data.get('user_id'))
+        try:
+            queryset = User.objects.get(pk=request.data.get('user_id'))
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            self.create(request, *args, **kwargs)
+            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class RemoveUserFollowingView(generics.DestroyAPIView):
+    queryset = UserFollowing.objects.all()
+    serializer_class = UserFollowingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_fields = ('user_id', 'following_user_id')
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in self.lookup_fields:
+            filter[field] = self.kwargs[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        print(request.user)
+        try:
+            queryset = User.objects.get(pk=kwargs['user_id'])
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            self.destroy(request, *args, **kwargs)
+            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
