@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # Create your models here.
-
+# import products.models
 # custom user manager
 
 
@@ -61,6 +61,8 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    likedPosts = models.ManyToManyField("products.Product", blank=True, related_name='liked')
+    savedPosts = models.ManyToManyField("products.Product", blank=True, related_name='saved')
 
     objects = UserManager()
 

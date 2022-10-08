@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login
 
 from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer
 from .models import User, UserFollowing
+from products.models import Product
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -154,3 +155,64 @@ class RemoveUserFollowingView(generics.DestroyAPIView):
         else:
             self.destroy(request, *args, **kwargs)
             return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+# prevent more than one like and dislike here, same for save
+class LikePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            post = Product.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.likedPosts.add(post)
+        user.save()
+        post.likesCount += 1
+        post.save()
+        return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class UnlikePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            post = Product.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.likedPosts.remove(post)
+        user.save()
+        post.likesCount -= 1
+        post.save()
+        return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class SavePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            post = Product.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.savedPosts.add(post)
+        user.save()
+        return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class UnSavePostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            post = Product.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.savedPosts.remove(post)
+        user.save()
+        return Response({"msg": "Success"}, status=status.HTTP_200_OK)

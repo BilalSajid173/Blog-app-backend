@@ -52,6 +52,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     )
     following = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
+    likedPosts = serializers.SerializerMethodField()
+    savedPosts = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -76,6 +78,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_followers(self, obj):
         return FollowersSerializer(obj.followers.all(), many=True).data
+    
+    def get_likedPosts(self, obj):
+        return ProductSerializer(obj.likedPosts.all(), many=True).data
+    
+    def get_savedPosts(self, obj):
+        return ProductSerializer(obj.savedPosts.all(), many=True).data
 
 
 class FollowingSerializer(serializers.ModelSerializer):
