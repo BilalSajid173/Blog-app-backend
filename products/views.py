@@ -1,11 +1,13 @@
 from rest_framework import generics, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, Comment
+from account.models import User
+from .serializers import ProductSerializer, CommentSerializer
 # from .permissions import IsStaffEditorPermission
 
 # Create your views here.
@@ -106,6 +108,120 @@ class ProductListAPIView(generics.ListAPIView):
 
 
 product_list_view = ProductListAPIView.as_view()
+
+
+# class CommentCreateAPIView(APIView):
+#     # queryset = Comment.objects.all()
+#     # serializer_class = CommentSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         serializer = CommentSerializer(data=request.data)
+#         post = Product.objects.get(pk=request.data.get('p_id'))
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.post = post
+#             serializer.user = request.user
+#             # serializer.save()
+#             return Response({"msg": "Reg successful", "serializer_data": serializer.data}, status=status.HTTP_201_CREATED)
+#         # serializer.save(user=self.request.user, data=request.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# comment_create_view = CommentCreateAPIView.as_view()
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def addComment(request, pk):
+    user = request.user
+    product = Product.objects.get(pk=pk)
+    data = request.data
+
+    # 1 - Review already exists
+    alreadyExists = product.comment_set.filter(user=user).exists()
+    if alreadyExists:
+        content = {'detail': 'Product already reviewed'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    comment = Comment.objects.create(
+        user=user,
+        product=product,
+        name=user.name,
+        p_id=pk,
+        comment=data['comment']
+    )
+    return Response('Review Added')
+
+
+class DeleteCommentView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_fields = ('user_id', 'product_id')
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in self.lookup_fields:
+            filter[field] = self.kwargs[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        print(request.user)
+        try:
+            queryset = User.objects.get(pk=kwargs['user_id'])
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            self.destroy(request, *args, **kwargs)
+            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class UpdateCommentView(generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_fields = ('user_id', 'product_id')
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in self.lookup_fields:
+            filter[field] = self.kwargs[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def put(self, request, *args, **kwargs):
+        print(request.user)
+        try:
+            queryset = User.objects.get(pk=kwargs['user_id'])
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+        print(queryset)
+        # serializer = self.get_serializer(data=request.data)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            self.update(request, *args, **kwargs)
+            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+        # reviews = product.review_set.all()
+        # product.numReviews = len(reviews)
+
+        # total = 0
+        # for i in reviews:
+        #     total += i.rating
+
+        # product.rating = total / len(reviews)
+        # product.save()
 
 # Skipped Product mixins part, look at it later
 

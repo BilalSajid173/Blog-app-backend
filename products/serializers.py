@@ -1,28 +1,28 @@
 from rest_framework import serializers
 
-from .models import Product
+from .models import Product, Comment
 
 
 class ProductSerializer(serializers.ModelSerializer):
     # this is for changing the property name from get_discount to my_discount, look how it works
     # my_discount = serializers.SerializerMethodField(read_only=True)
 
+    comments = serializers.SerializerMethodField(read_only=True)
+    commentCount = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Product
         # fields can be fields, property or instance methods like getDiscount
-        fields = [
-            'user',
-            'id',
-            'title',
-            'content',
-            'created_at',
-            'category',
-            'imageId',
-            'created_at',
-            'commentCount',
-            'likesCount'
-        ]
+        fields = '__all__'
 
+    def get_comments(self, obj):
+        comments = obj.comment_set.all()
+        serializer = CommentSerializer(comments, many=True)
+        return serializer.data
+
+    def get_commentCount(self, obj):
+        comments = obj.comment_set.all()
+        return len(comments)
     # def get_my_discount(self, obj):
         # this obj is the instance thats calling this serializer
         # print(obj.id)
@@ -33,3 +33,10 @@ class ProductSerializer(serializers.ModelSerializer):
         # return obj.get_discount()
         # except:
         #     return None
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
