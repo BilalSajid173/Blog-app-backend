@@ -8,10 +8,11 @@ class Product(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
-    imageId = models.CharField(max_length=200, null=True)
+    imageId = models.CharField(max_length=200, null=True, blank=True)
     category = models.CharField(max_length=200, null=True, blank=True)
     commentCount = models.IntegerField(null=True, default=0)
     likesCount = models.IntegerField(null=True, default=0)
+    tags = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return self.title
