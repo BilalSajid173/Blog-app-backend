@@ -35,7 +35,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'address', 'education', 'token', 'about']
+        fields = '__all__'
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
@@ -78,10 +78,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_followers(self, obj):
         return FollowersSerializer(obj.followers.all(), many=True).data
-    
+
     def get_likedPosts(self, obj):
         return ProductSerializer(obj.likedPosts.all(), many=True).data
-    
+
     def get_savedPosts(self, obj):
         return ProductSerializer(obj.savedPosts.all(), many=True).data
 
