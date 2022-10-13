@@ -28,6 +28,10 @@ from products.models import Product
 #         'access': str(refresh.access_token),
 #     }
 
+class UserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+
 
 class UserRegistrationView(APIView):
     def post(self, request, format=None):
