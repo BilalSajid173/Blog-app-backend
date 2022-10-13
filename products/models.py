@@ -6,7 +6,7 @@ from account.models import User
 class Product(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=100)
-    content = models.TextField(max_length=1000)
+    content = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     imageId = models.CharField(max_length=200, null=True, blank=True)
     category = models.CharField(max_length=200, null=True, blank=True)
