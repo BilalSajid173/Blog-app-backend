@@ -128,10 +128,10 @@ def product_list(request):
     else:
         qs = qs.order_by("likesCount", "commentCount")
     x = len(qs)
-    if (page*5) <= x:
-        qs = qs[(page-1)*5:page*5]
+    if (page*10) <= x:
+        qs = qs[(page-1)*10:page*10]
     else:
-        qs = qs[(page-1)*5:]
+        qs = qs[(page-1)*10:]
     serializer = ProductSerializer(qs, many=True)
     return Response({"data": serializer.data, "totalPosts": y})
 # class CommentCreateAPIView(APIView):
