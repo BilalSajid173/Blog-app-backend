@@ -110,6 +110,30 @@ class ProductListAPIView(generics.ListAPIView):
 product_list_view = ProductListAPIView.as_view()
 
 
+@api_view(['GET'])
+def product_list(request):
+    qs = Product.objects.all()
+    y = len(qs)
+    tag = request.query_params.get('tag')  # Get query parameter
+    page = int(request.query_params.get("page"))
+    sort = request.query_params.get("sort")
+    print(request.query_params)
+    if tag is not None:
+        qs = qs.filter(tags__icontains=tag)
+        y = len(qs)
+        print(qs)
+    if sort == "latest":
+        print("h")
+        qs = qs.order_by("-created_at")
+    else:
+        qs = qs.order_by("likesCount", "commentCount")
+    x = len(qs)
+    if (page*5) <= x:
+        qs = qs[(page-1)*5:page*5]
+    else:
+        qs = qs[(page-1)*5:]
+    serializer = ProductSerializer(qs, many=True)
+    return Response({"data": serializer.data, "totalPosts": y})
 # class CommentCreateAPIView(APIView):
 #     # queryset = Comment.objects.all()
 #     # serializer_class = CommentSerializer

@@ -12,5 +12,6 @@ urlpatterns = [
     path("<int:user_id>/<int:product_id>/deletecomment/",
          views.DeleteCommentView.as_view()),
     path("<int:user_id>/<int:product_id>/updatecomment/",
-         views.UpdateCommentView.as_view())
+         views.UpdateCommentView.as_view()),
+    path("filter/", views.product_list),
 ]
