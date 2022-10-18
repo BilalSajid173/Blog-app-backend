@@ -31,8 +31,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     # _id = serializers.SerializerMethodField(read_only=True)
     # email = serializers.EmailField(max_length=255)
+    products = serializers.SerializerMethodField(read_only=True)
     token = serializers.SerializerMethodField(read_only=True)
-
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    likedPosts = serializers.SerializerMethodField()
+    savedPosts = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = '__all__'
@@ -42,6 +46,24 @@ class LoginSerializer(serializers.ModelSerializer):
         return str(token.access_token)
     # def get__id(self, obj):
     #     return obj.id
+    
+    def get_products(self, obj):
+        products = obj.product_set.all()
+        serializer = ProductSerializer(products, many=True)
+        return serializer.data
+
+    def get_following(self, obj):
+        return FollowingSerializer(obj.following.all(), many=True).data
+
+    def get_followers(self, obj):
+        return FollowersSerializer(obj.followers.all(), many=True).data
+
+    def get_likedPosts(self, obj):
+        return ProductSerializer(obj.likedPosts.all(), many=True).data
+
+    def get_savedPosts(self, obj):
+        return ProductSerializer(obj.savedPosts.all(), many=True).data
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

@@ -126,7 +126,7 @@ def product_list(request):
         print("h")
         qs = qs.order_by("-created_at")
     else:
-        qs = qs.order_by("likesCount", "commentCount")
+        qs = qs.order_by("-likesCount", "-commentCount")
     x = len(qs)
     if (page*10) <= x:
         qs = qs[(page-1)*10:page*10]

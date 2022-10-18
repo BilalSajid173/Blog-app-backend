@@ -175,7 +175,7 @@ class LikePostView(APIView):
         user.save()
         post.likesCount += 1
         post.save()
-        return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+        return Response({"msg": "Like Success"}, status=status.HTTP_200_OK)
 
 
 class UnlikePostView(APIView):
@@ -191,7 +191,7 @@ class UnlikePostView(APIView):
         user.save()
         post.likesCount -= 1
         post.save()
-        return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+        return Response({"msg": "unlike Success"}, status=status.HTTP_200_OK)
 
 
 class SavePostView(APIView):
