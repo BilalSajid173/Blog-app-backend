@@ -24,3 +24,5 @@ class Comment(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     comment = models.CharField(max_length=1000, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    likesCount = models.IntegerField(null=True, default=0)
+    dislikesCount = models.IntegerField(null=True, default=0)

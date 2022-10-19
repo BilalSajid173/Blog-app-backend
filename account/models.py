@@ -61,8 +61,14 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    likedPosts = models.ManyToManyField("products.Product", blank=True, related_name='liked')
-    savedPosts = models.ManyToManyField("products.Product", blank=True, related_name='saved')
+    likedPosts = models.ManyToManyField(
+        "products.Product", blank=True, related_name='liked')
+    savedPosts = models.ManyToManyField(
+        "products.Product", blank=True, related_name='saved')
+    likedComments = models.ManyToManyField(
+        "products.Comment", blank=True, related_name='likedComment')
+    dislikedComments = models.ManyToManyField(
+        "products.Comment", blank=True, related_name='dislikedComment')
 
     objects = UserManager()
 

@@ -1,8 +1,9 @@
 from rest_framework import serializers
+from yaml import serialize
 from account.models import User, UserFollowing
 from rest_framework_simplejwt.tokens import RefreshToken
-from products.models import Product
-from products.serializers import ProductSerializer
+from products.models import Product, Comment
+from products.serializers import ProductSerializer, CommentSerializer
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -37,6 +38,10 @@ class LoginSerializer(serializers.ModelSerializer):
     followers = serializers.SerializerMethodField()
     likedPosts = serializers.SerializerMethodField()
     savedPosts = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+    likedComments = serializers.SerializerMethodField()
+    dislikedComments = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = '__all__'
@@ -46,10 +51,15 @@ class LoginSerializer(serializers.ModelSerializer):
         return str(token.access_token)
     # def get__id(self, obj):
     #     return obj.id
-    
+
     def get_products(self, obj):
         products = obj.product_set.all()
         serializer = ProductSerializer(products, many=True)
+        return serializer.data
+
+    def get_comments(self, obj):
+        comments = obj.comment_set.all()
+        serializer = CommentSerializer(comments, many=True)
         return serializer.data
 
     def get_following(self, obj):
@@ -64,6 +74,11 @@ class LoginSerializer(serializers.ModelSerializer):
     def get_savedPosts(self, obj):
         return ProductSerializer(obj.savedPosts.all(), many=True).data
 
+    def get_likedComments(self, obj):
+        return CommentSerializer(obj.likedComments.all(), many=True).data
+
+    def get_dislikedComments(self, obj):
+        return CommentSerializer(obj.dislikedComments.all(), many=True).data
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -76,6 +91,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     followers = serializers.SerializerMethodField()
     likedPosts = serializers.SerializerMethodField()
     savedPosts = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+    likedComments = serializers.SerializerMethodField()
+    dislikedComments = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -84,6 +102,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_products(self, obj):
         products = obj.product_set.all()
         serializer = ProductSerializer(products, many=True)
+        return serializer.data
+
+    def get_comments(self, obj):
+        comments = obj.comment_set.all()
+        serializer = CommentSerializer(comments, many=True)
         return serializer.data
 
     def update(self, instance, validated_data):
@@ -106,6 +129,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_savedPosts(self, obj):
         return ProductSerializer(obj.savedPosts.all(), many=True).data
+
+    def get_likedComments(self, obj):
+        return CommentSerializer(obj.likedComments.all(), many=True).data
+
+    def get_dislikedComments(self, obj):
+        return CommentSerializer(obj.dislikedComments.all(), many=True).data
 
 
 class FollowingSerializer(serializers.ModelSerializer):
