@@ -192,6 +192,20 @@ class CommentDestroyAPIView(generics.DestroyAPIView):
 comment_delete_view = CommentDestroyAPIView.as_view()
 
 
+class CommentListAPIView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    # lookup_field = "pk"
+    lookup_url_kwarg = "product_id"
+
+    def get_queryset(self):
+        product_id = self.kwargs.get(self.lookup_url_kwarg)
+        comments = Comment.objects.filter(product_id=product_id)
+        return comments
+
+
+comment_list_view = CommentListAPIView.as_view()
+
+
 # @api_view(['POST'])
 # @permission_classes([permissions.IsAuthenticated])
 # def addComment(request, pk):
