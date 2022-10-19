@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate, login
 
 from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer
 from .models import User, UserFollowing
-from products.models import Product
+from products.models import Product, Comment
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -176,6 +176,46 @@ class LikePostView(APIView):
         post.likesCount += 1
         post.save()
         return Response({"msg": "Like Success"}, status=status.HTTP_200_OK)
+
+
+class LikeCommentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No comment with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.likedComments.add(comment)
+        comment.likesCount += 1
+        print(request.data)
+        if request.data.get("unlike"):
+            comment.dislikesCount -= 1
+            user.dislikedComments.remove(comment)
+        user.save()
+        comment.save()
+        return Response({"msg": "Like Success"}, status=status.HTTP_200_OK)
+
+
+class UnLikeCommentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No comment with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.dislikedComments.add(comment)
+        comment.dislikesCount += 1
+        print(request.data)
+        if request.data.get("like"):
+            comment.likesCount -= 1
+            user.likedComments.remove(comment)
+        user.save()
+        comment.save()
+        return Response({"msg": "Unlike Success"}, status=status.HTTP_200_OK)
 
 
 class UnlikePostView(APIView):
