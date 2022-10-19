@@ -134,118 +134,85 @@ def product_list(request):
         qs = qs[(page-1)*10:]
     serializer = ProductSerializer(qs, many=True)
     return Response({"data": serializer.data, "totalPosts": y})
-# class CommentCreateAPIView(APIView):
-#     # queryset = Comment.objects.all()
-#     # serializer_class = CommentSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def post(self, request):
-#         serializer = CommentSerializer(data=request.data)
-#         post = Product.objects.get(pk=request.data.get('p_id'))
-#         if serializer.is_valid(raise_exception=True):
-#             serializer.post = post
-#             serializer.user = request.user
-#             # serializer.save()
-#             return Response({"msg": "Reg successful", "serializer_data": serializer.data}, status=status.HTTP_201_CREATED)
-#         # serializer.save(user=self.request.user, data=request.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# comment_create_view = CommentCreateAPIView.as_view()
-
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
-def addComment(request, pk):
-    user = request.user
-    product = Product.objects.get(pk=pk)
-    data = request.data
-
-    # 1 - Review already exists
-    alreadyExists = product.comment_set.filter(user=user).exists()
-    if alreadyExists:
-        content = {'detail': 'Product already reviewed'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-    comment = Comment.objects.create(
-        user=user,
-        product=product,
-        name=user.name,
-        p_id=pk,
-        comment=data['comment']
-    )
-    return Response('Review Added')
-
-
-class DeleteCommentView(generics.DestroyAPIView):
+class CommentCreateAPIView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_fields = ('user_id', 'product_id')
 
-    def get_object(self):
-        queryset = self.get_queryset()
-        filter = {}
-        for field in self.lookup_fields:
-            filter[field] = self.kwargs[field]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        print(serializer.validated_data)
 
-        obj = get_object_or_404(queryset, **filter)
-        self.check_object_permissions(self.request, obj)
-        return obj
+
+comment_create_view = CommentCreateAPIView.as_view()
+
+
+class CommentUpdateAPIView(generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = 'pk'
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        try:
+            queryset = Comment.objects.get(pk=kwargs['pk']).user
+        except ObjectDoesNotExist:
+            return Response({"msg": "No comment with this id"}, status=status.HTTP_404_NOT_FOUND)
+        if request.user != queryset:
+            return Response({"msg": "Forbidden"})
+        return self.update(request, *args, **kwargs)
+
+
+comment_update_view = CommentUpdateAPIView.as_view()
+
+
+class CommentDestroyAPIView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = 'pk'
+
+    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         print(request.user)
         try:
-            queryset = User.objects.get(pk=kwargs['user_id'])
+            queryset = Comment.objects.get(pk=kwargs['pk']).user
         except ObjectDoesNotExist:
-            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
-        print(queryset)
-        # serializer = self.get_serializer(data=request.data)
+            return Response({"msg": "No post with this id"}, status=status.HTTP_404_NOT_FOUND)
         if request.user != queryset:
-            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"msg": "Forbidden"})
         else:
             self.destroy(request, *args, **kwargs)
-            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+            return Response({"msg": "Success"})
 
 
-class UpdateCommentView(generics.UpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    lookup_fields = ('user_id', 'product_id')
+comment_delete_view = CommentDestroyAPIView.as_view()
 
-    def get_object(self):
-        queryset = self.get_queryset()
-        filter = {}
-        for field in self.lookup_fields:
-            filter[field] = self.kwargs[field]
 
-        obj = get_object_or_404(queryset, **filter)
-        self.check_object_permissions(self.request, obj)
-        return obj
+# @api_view(['POST'])
+# @permission_classes([permissions.IsAuthenticated])
+# def addComment(request, pk):
+#     user = request.user
+#     product = Product.objects.get(pk=pk)
+#     data = request.data
 
-    def put(self, request, *args, **kwargs):
-        print(request.user)
-        try:
-            queryset = User.objects.get(pk=kwargs['user_id'])
-        except ObjectDoesNotExist:
-            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
-        print(queryset)
-        # serializer = self.get_serializer(data=request.data)
-        if request.user != queryset:
-            return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            self.update(request, *args, **kwargs)
-            return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+#     # 1 - Review already exists
+#     alreadyExists = product.comment_set.filter(user=user).exists()
+#     if alreadyExists:
+#         content = {'detail': 'Product already reviewed'}
+#         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        # reviews = product.review_set.all()
-        # product.numReviews = len(reviews)
+#     comment = Comment.objects.create(
+#         user=user,
+#         product=product,
+#         name=user.name,
+#         comment=data['comment']
+#     )
+#     return Response('Review Added')
 
-        # total = 0
-        # for i in reviews:
-        #     total += i.rating
-
-        # product.rating = total / len(reviews)
-        # product.save()
 
 # Skipped Product mixins part, look at it later
 
@@ -253,32 +220,32 @@ class UpdateCommentView(generics.UpdateAPIView):
 # to test these, replace the functon in url with views.product_alt_view
 
 
-@api_view(["GET", "POST"])
-def product_alt_view(request, pk=None):
-    method = request.method
-    if method == "GET":
-        if pk is not None:
-            # m-1
-            # queryset = Product.objects.filter(pk=pk)
-            # if not queryset.exists()
-            # raise Http404
-            # m-2
-            obj = get_object_or_404(Product, pk=pk)
-            data = ProductSerializer(obj, many=False).data
-            return Response(data)
-        # url args??
-        # get request -> detail view
-        # list view
-        queryset = Product.objects.all()
-        data = ProductSerializer(queryset, many=True).data
-        return Response(data)
-    if method == "POST":
-        serializer = ProductSerializer(data=request.data)
-        # raise exception will catch an invalid error and throw it.
-        if serializer.is_valid(raise_exception=True):
-            content = serializer.validated_data.get('content') or None
-            if content is None:
-                content = serializer.validated_data.get('title')
-            serializer.save(content=content)
-            return Response(serializer.data)
-        return Response({"Error": "Not good"}, status=400)
+# @api_view(["GET", "POST"])
+# def product_alt_view(request, pk=None):
+#     method = request.method
+#     if method == "GET":
+#         if pk is not None:
+#             # m-1
+#             # queryset = Product.objects.filter(pk=pk)
+#             # if not queryset.exists()
+#             # raise Http404
+#             # m-2
+#             obj = get_object_or_404(Product, pk=pk)
+#             data = ProductSerializer(obj, many=False).data
+#             return Response(data)
+#         # url args??
+#         # get request -> detail view
+#         # list view
+#         queryset = Product.objects.all()
+#         data = ProductSerializer(queryset, many=True).data
+#         return Response(data)
+#     if method == "POST":
+#         serializer = ProductSerializer(data=request.data)
+#         # raise exception will catch an invalid error and throw it.
+#         if serializer.is_valid(raise_exception=True):
+#             content = serializer.validated_data.get('content') or None
+#             if content is None:
+#                 content = serializer.validated_data.get('title')
+#             serializer.save(content=content)
+#             return Response(serializer.data)
+#         return Response({"Error": "Not good"}, status=400)
