@@ -218,6 +218,38 @@ class UnLikeCommentView(APIView):
         return Response({"msg": "Unlike Success"}, status=status.HTTP_200_OK)
 
 
+class RemoveLikeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No comment with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.likedComments.remove(comment)
+        comment.likesCount -= 1
+        user.save()
+        comment.save()
+        return Response({"msg": "Remove Like Success"}, status=status.HTTP_200_OK)
+
+
+class RemoveUnLikeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No comment with this id"}, status=status.HTTP_404_NOT_FOUND)
+        user.dislikedComments.remove(comment)
+        comment.dislikesCount -= 1
+        user.save()
+        comment.save()
+        return Response({"msg": "Remove dislike Success"}, status=status.HTTP_200_OK)
+
+
 class UnlikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

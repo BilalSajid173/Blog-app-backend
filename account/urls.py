@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import LoginView, UserRegistrationView, ProfileView, UserUpdateAPIView, GetProfileView, UserFollowingView, RemoveUserFollowingView, LikePostView, UnlikePostView, SavePostView, UnSavePostView, UserListAPIView, LikeCommentView, UnLikeCommentView
+from .views import LoginView, UserRegistrationView, ProfileView, UserUpdateAPIView, GetProfileView, UserFollowingView, RemoveUserFollowingView, LikePostView, UnlikePostView, SavePostView, UnSavePostView, UserListAPIView, LikeCommentView, UnLikeCommentView, RemoveLikeView, RemoveUnLikeView
 urlpatterns = [
     path("register/", UserRegistrationView.as_view(), name="register"),
     path('login/', LoginView.as_view(), name='login'),
@@ -16,6 +16,10 @@ urlpatterns = [
     path('savepost/<int:pk>/', SavePostView.as_view(), name="savepost"),
     path('unsavepost/<int:pk>/', UnSavePostView.as_view(), name="unsavepost"),
     path('likecomment/<int:pk>/', LikeCommentView.as_view(), name="likecomment"),
+    path('removelikecomment/<int:pk>/',
+         RemoveLikeView.as_view(), name="removelikecomment"),
     path('unlikecomment/<int:pk>/',
          UnLikeCommentView.as_view(), name="unlikecomment"),
+    path('removeunlikecomment/<int:pk>/',
+         RemoveUnLikeView.as_view(), name="removeunlikecomment"),
 ]
