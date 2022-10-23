@@ -52,6 +52,7 @@ class User(AbstractBaseUser):
     education = models.CharField(max_length=200, null=True)
     about = models.CharField(max_length=500, null=True)
     bio = models.CharField(max_length=1000, null=True)
+    age = models.IntegerField(null=True, blank=True)
     linkedIn = models.CharField(max_length=200, null=True)
     github = models.CharField(max_length=200, null=True)
     twitter = models.CharField(max_length=200, null=True)
