@@ -29,6 +29,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
 class LoginSerializer(serializers.ModelSerializer):
     # _id = serializers.SerializerMethodField(read_only=True)
     # email = serializers.EmailField(max_length=255)
