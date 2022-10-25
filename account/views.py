@@ -126,7 +126,7 @@ class GetProfileView(APIView):
         except ObjectDoesNotExist:
             return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
         serializer = UserProfileSerializer(user, many=False)
-        return Response({"msg": "Update Successful", "serializer_data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"User": serializer.data}, status=status.HTTP_200_OK)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
