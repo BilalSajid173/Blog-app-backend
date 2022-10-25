@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login
 # from .utils import get_tokens_for_user
 # from .serializers import RegistrationSerializer, PasswordChangeSerializer
 
-from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer, ChangePasswordSerializer, FollowersSerializer, FollowingSerializer
+from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer, ChangePasswordSerializer, FollowersSerializer, FollowingSerializer, SavedPostsSerializer
 from .models import User, UserFollowing
 from products.models import Product, Comment
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -116,6 +116,16 @@ class ProfileView(APIView):
         serializer = UserProfileSerializer(user, many=False)
         # if serializer.is_valid(raise_exception=True):
         return Response({"User": serializer.data})
+
+
+class GetSavedPostsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = SavedPostsSerializer(user, many=False)
+        # if serializer.is_valid(raise_exception=True):
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetProfileView(APIView):

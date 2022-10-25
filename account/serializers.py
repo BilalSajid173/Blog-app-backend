@@ -147,6 +147,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return CommentSerializer(obj.dislikedComments.all(), many=True).data
 
 
+class SavedPostsSerializer(serializers.ModelSerializer):
+
+    savedPosts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def get_savedPosts(self, obj):
+        return ProductSerializer(obj.savedPosts.all(), many=True).data
+
+
 class UserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
