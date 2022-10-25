@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login
 # from .utils import get_tokens_for_user
 # from .serializers import RegistrationSerializer, PasswordChangeSerializer
 
-from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer, ChangePasswordSerializer
+from account.serializers import UserProfileSerializer, UserRegistrationSerializer, LoginSerializer, UserFollowingSerializer, ChangePasswordSerializer, FollowersSerializer, FollowingSerializer
 from .models import User, UserFollowing
 from products.models import Product, Comment
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -191,7 +191,34 @@ class RemoveUserFollowingView(generics.DestroyAPIView):
             return Response({"msg": "Success"}, status=status.HTTP_200_OK)
 
 
+# get following and get followers checks for self not there
+class GetFollowingView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            following = UserFollowing.objects.filter(user_id=user_id)
+        except ObjectDoesNotExist:
+            return Response({"msg": "You have not followed anyone"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FollowingSerializer(following, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetFollowersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, following_user_id):
+        try:
+            followers = UserFollowing.objects.filter(
+                following_user_id=following_user_id)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No followers"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FollowersSerializer(followers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 # prevent more than one like and dislike here, same for save
+
+
 class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

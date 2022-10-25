@@ -147,18 +147,41 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return CommentSerializer(obj.dislikedComments.all(), many=True).data
 
 
+class UserDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ("name", "profilePic", "email")
+
+
 class FollowingSerializer(serializers.ModelSerializer):
+
+    userData = serializers.SerializerMethodField()
 
     class Meta:
         model = UserFollowing
-        fields = ("id", "following_user_id", "created")
+        fields = ("id", "following_user_id", "created", "userData")
+
+    def get_userData(self, obj):
+        user = User.objects.get(pk=obj.following_user_id_id)
+        serializer = UserDataSerializer(
+            user, many=False)
+        return serializer.data
 
 
 class FollowersSerializer(serializers.ModelSerializer):
 
+    userData = serializers.SerializerMethodField()
+
     class Meta:
         model = UserFollowing
-        fields = ("id", "user_id", "created")
+        fields = ("id", "user_id", "created", "userData")
+
+    def get_userData(self, obj):
+        user = User.objects.get(pk=obj.user_id_id)
+        serializer = UserDataSerializer(
+            user, many=False)
+        return serializer.data
 
 
 class UserFollowingSerializer(serializers.ModelSerializer):
