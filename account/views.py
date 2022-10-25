@@ -150,13 +150,10 @@ class UserFollowingView(generics.CreateAPIView):
     queryset = UserFollowing.objects.all()
 
     def post(self, request, *args, **kwargs):
-        print(request.user)
-        print(request.data.get('user_id'))
         try:
             queryset = User.objects.get(pk=request.data.get('user_id'))
         except ObjectDoesNotExist:
             return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
-        print(queryset)
         # serializer = self.get_serializer(data=request.data)
         if request.user != queryset:
             return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -182,12 +179,10 @@ class RemoveUserFollowingView(generics.DestroyAPIView):
         return obj
 
     def delete(self, request, *args, **kwargs):
-        print(request.user)
         try:
             queryset = User.objects.get(pk=kwargs['user_id'])
         except ObjectDoesNotExist:
             return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
-        print(queryset)
         # serializer = self.get_serializer(data=request.data)
         if request.user != queryset:
             return Response({"msg": "Forbidden"}, status=status.HTTP_401_UNAUTHORIZED)
