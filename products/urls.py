@@ -14,5 +14,6 @@ urlpatterns = [
     path("updatecomment/<int:pk>/",
          views.comment_update_view),
     path("filter/", views.product_list),
-    path("getcomments/<int:product_id>/", views.comment_list_view)
+    path("getcomments/<int:product_id>/", views.comment_list_view),
+    path("search/", views.search_list)
 ]

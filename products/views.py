@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
 from .models import Product, Comment
 from account.models import User
 from .serializers import ProductSerializer, CommentSerializer
+from account.serializers import UserProfileSerializer
 # from .permissions import IsStaffEditorPermission
 
 # Create your views here.
@@ -108,6 +110,21 @@ class ProductListAPIView(generics.ListAPIView):
 
 
 product_list_view = ProductListAPIView.as_view()
+
+
+@api_view(['GET'])
+def search_list(request):
+    qs = Product.objects.all()
+    tag = request.query_params.get('search')  # Get query parameter
+    print(request.query_params)
+    qs = qs.filter(Q(title__icontains=tag) | Q(
+        tags__icontains=tag) | Q(category__icontains=tag))
+    postsserializer = ProductSerializer(qs, many=True)
+    qs = User.objects.all()
+    qs = qs.filter(Q(name__icontains=tag) | Q(
+        email__icontains=tag) | Q(address__icontains=tag))
+    userserializer = UserProfileSerializer(qs, many=True)
+    return Response({"posts": postsserializer.data, "users": userserializer.data})
 
 
 @api_view(['GET'])
