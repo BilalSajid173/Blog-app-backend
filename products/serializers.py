@@ -48,13 +48,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
 
+    user = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Comment
         fields = '__all__'
+
+    def get_user(self, obj):
+        user = User.objects.get(pk=obj.user_id)
+        serializer = UserProfileSerializer(
+            user, many=False)
+        return serializer.data
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-
