@@ -13,6 +13,7 @@ djangorestframework-simplejwt = "*"
 sendgrid = "*"
 python-dotenv = "*"
 psycopg2 = "*"
+django-heroku = "*"
 
 [dev-packages]
 autopep8 = "*"
