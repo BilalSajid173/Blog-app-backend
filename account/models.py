@@ -70,6 +70,8 @@ class User(AbstractBaseUser):
         "products.Comment", blank=True, related_name='likedComment')
     dislikedComments = models.ManyToManyField(
         "products.Comment", blank=True, related_name='dislikedComment')
+    forget_pass_token = models.CharField(
+        max_length=1000, blank=True, null=True)
 
     objects = UserManager()
 

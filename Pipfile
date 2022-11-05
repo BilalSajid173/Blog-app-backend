@@ -10,6 +10,8 @@ pyyaml = "*"
 requests = "*"
 django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
+sendgrid = "*"
+python-dotenv = "*"
 
 [dev-packages]
 autopep8 = "*"

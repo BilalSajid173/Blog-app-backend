@@ -1,3 +1,8 @@
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.text import MIMEText
+# import smtplib
+from dotenv import load_dotenv
+import uuid
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
@@ -27,6 +32,11 @@ from products.models import Product, Comment
 #         'refresh': str(refresh),
 #         'access': str(refresh.access_token),
 #     }
+
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
@@ -359,3 +369,32 @@ class UnSavePostView(APIView):
         user.savedPosts.remove(post)
         user.save()
         return Response({"msg": "Success"}, status=status.HTTP_200_OK)
+
+
+class ForgetPasswordView(APIView):
+
+    def post(self, request):
+        print(request.data)
+        email = request.data.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No user with this id"}, status=status.HTTP_404_NOT_FOUND)
+
+        token = str(uuid.uuid4())
+        user.forget_pass_token = token
+        user.save()
+        message = Mail(
+            from_email='blogifyEmail123@gmail.com',
+            to_emails=email,
+            subject='Password Reset',
+            html_content=f'<h2>Password Reset Link<h2><p>http://127.0.0.1:8000/change-password/{token}/<p>')
+
+        try:
+            load_dotenv(encoding='utf16')
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(response.status_code)
+        except Exception as e:
+            print(e)
+        return Response({"msg": "Email Sent Successfully"}, status=status.HTTP_200_OK)
