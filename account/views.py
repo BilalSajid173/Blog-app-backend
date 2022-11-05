@@ -388,7 +388,7 @@ class ForgetPasswordView(APIView):
             from_email='blogifyEmail123@gmail.com',
             to_emails=email,
             subject='Password Reset',
-            html_content=f'<h2>Password Reset Link<h2><p>http://localhost:3000/change-password/{token}/<p>')
+            html_content=f'<h2>Password Reset Link<h2><p>https://blogify-app.vercel.app/change-password/{token}/<p>')
 
         try:
             load_dotenv(encoding='utf16')
