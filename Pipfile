@@ -12,6 +12,7 @@ django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
 sendgrid = "*"
 python-dotenv = "*"
+psycopg2 = "*"
 
 [dev-packages]
 autopep8 = "*"
