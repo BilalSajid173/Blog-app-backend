@@ -398,3 +398,17 @@ class ForgetPasswordView(APIView):
         except Exception as e:
             print(e)
         return Response({"msg": "Email Sent Successfully"}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordView(APIView):
+
+    def post(self, request, token):
+        password = request.data.get("password")
+        try:
+            user = User.objects.get(forget_pass_token=token)
+        except ObjectDoesNotExist:
+            return Response({"msg": "No token found"}, status=status.HTTP_404_NOT_FOUND)
+        user.forget_pass_token = ""
+        user.set_password(password)
+        user.save()
+        return Response({"msg": "Password Reset Successfully"}, status=status.HTTP_200_OK)
