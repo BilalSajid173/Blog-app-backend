@@ -101,10 +101,10 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog_app_db_ut5t',
-        'USER': 'blog_app_db_ut5t_user',
-        'PASSWORD': '6kurjgoDLGxoKQKvYEksqW6anNYjgfM8',
-        'HOST': 'dpg-ceqqt01gp3jv6g039qfg-a.oregon-postgres.render.com',
+        'NAME': 'blog_app_auem',
+        'USER': 'blog_app_auem_user',
+        'PASSWORD': 'hIpYRXZlpk4tNPBUPDiuqBLNmX9zDM3o',
+        'HOST': 'dpg-citmphliuiedpv4pcn20-a.oregon-postgres.render.com',
         'PORT': '5432',
     }
 }
